@@ -1,0 +1,25 @@
+services:
+  # api spring boot
+  users-api:
+    build: . # cria a imagem a partir do dockerfile
+    container_name: users-api
+    ports:
+      - "8001:8001" # local:container
+    depends_on:
+      - mysql # garante que o banco suba antes da api
+    environment:
+      # variáveis usadas pelo spring boot para se conectar ao banco
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sd3db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  # banco de dados
+  mysql:
+    image: mysql:8.0 # imagem oficial
+    container_name: users-mysql
+    restart: always # reinicia automaticamente se parar
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sd3db # cria o banco automaticamente
+    ports:
+      - "3306:3306" # porta padão do mysql
