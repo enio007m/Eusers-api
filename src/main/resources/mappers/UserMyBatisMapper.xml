@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  MyBatis mapper for User operations.
+
+  This mapper defines SQL queries to interact with the "users" table,
+  mapping results to UserJpaEntity objects.
+-->
+<mapper namespace="jalau.usersapi.infrastructure.mysql.mybatis.UserMyBatisMapper">
+
+  <!-- Retrieves all users from the database. -->
+  <select id="findAllUsers" resultType="jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity">
+    SELECT id, name, login, password
+    FROM users
+  </select>
+
+</mapper>

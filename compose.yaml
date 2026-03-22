@@ -1,25 +1,28 @@
 services:
-  # api spring boot
+  # Spring Boot API service
   users-api:
-    build: . # cria a imagem a partir do dockerfile
+    build: . # builds the image from the Dockerfile
     container_name: users-api
+    restart: always
     ports:
-      - "8001:8001" # local:container
+      - "8001:8001" # host:container port mapping
     depends_on:
-      - mysql # garante que o banco suba antes da api
+      - mysql # ensures database starts before the API
     environment:
-      # variáveis usadas pelo spring boot para se conectar ao banco
+      # environment variables used by Spring Boot to connect to the database
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sd3db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
 
-  # banco de dados
+  # Database service
   mysql:
-    image: mysql:8.0 # imagem oficial
+    image: mysql:8.0 # official MySQL image
     container_name: users-mysql
-    restart: always # reinicia automaticamente se parar
+    restart: always # automatically restarts if the container stops
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: sd3db # cria o banco automaticamente
+      MYSQL_DATABASE: sd3db # creates the database automatically
     ports:
-      - "3306:3306" # porta padão do mysql
+      - "3306:3306" # default MySQL port
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
