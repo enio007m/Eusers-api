@@ -40,4 +40,26 @@ class UserQueryServiceTest {
 		CompletableFuture<List<User>> result = userQueryService.getUsers();
 		assertEquals(1, result.get().size());
 	}
+
+	@Test
+	void shouldReturnUserById() throws Exception {
+		User user = new User("1", "Javier", "jroca", "123");
+		when(userRepository.getUser("1")).thenReturn(user);
+		
+		CompletableFuture<User> result = userQueryService.getUser("1");
+		assertEquals("Javier", result.get().getName());
+	}
+
+	@Test
+	void shouldThrowExceptionWhenUserNotFound() {
+		when(userRepository.getUser("2")).thenReturn(null);
+		
+		CompletableFuture<User> result = userQueryService.getUser("2");
+		
+		java.util.concurrent.CompletionException exception = org.junit.jupiter.api.Assertions.assertThrows(
+				java.util.concurrent.CompletionException.class,
+				result::join
+		);
+		org.junit.jupiter.api.Assertions.assertTrue(exception.getCause() instanceof jalau.usersapi.core.exception.UserNotFoundException);
+	}
 }

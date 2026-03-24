@@ -17,11 +17,5 @@ public interface IUserQueryService {
      */
     CompletableFuture<List<User>> getUsers();
     
-    /**
-     * TODO: Returns a single user by its unique identifier.
-     *
-     * @param id the user's unique identifier
-     * @return the user entity
-     */
-    User getUser(String id);
+    CompletableFuture<User> getUser(String id);
 }

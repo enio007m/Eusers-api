@@ -39,4 +39,19 @@ public class UserQueryController {
 			return ResponseEntity.ok(response);
 		});
 	}
+
+	/**
+	 * GET /api/v1/users/{id}
+	 * Retrieves a single user by ID asynchronously.
+	 *
+	 * @param id the user ID
+	 * @return a CompletableFuture containing ResponseEntity with the UserResponseDto
+	 */
+	@GetMapping("/{id}")
+	public CompletableFuture<ResponseEntity<UserResponseDto>> getUser(@org.springframework.web.bind.annotation.PathVariable String id) {
+		return userQueryService.getUser(id).thenApply(user -> {
+			UserResponseDto response = userMapper.toResponseDtoEntity(user);
+			return ResponseEntity.ok(response);
+		});
+	}
 }

@@ -22,17 +22,17 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 class UserRepositoryTest {
-	
+
 	/** Mocked MyBatis mapper */
 	@Mock
 	private UserMyBatisMapper myBatisMapper;
-	
+
 	/** Real mapper instance */
 	private UserPersistenceMapper mapper;
-	
+
 	/** Repository under test */
 	private UserRepository userRepository;
-	
+
 	/**
 	 * Initializes test dependencies before each test.
 	 */
@@ -41,7 +41,7 @@ class UserRepositoryTest {
 		mapper = new UserPersistenceMapper();
 		userRepository = new UserRepository(myBatisMapper, mapper);
 	}
-	
+
 	/**
 	 * Should return mapped users from database results.
 	 */
@@ -52,14 +52,39 @@ class UserRepositoryTest {
 		entity.setName("Javier");
 		entity.setLogin("jroca");
 		entity.setPassword("123");
-		
+
 		List<UserJpaEntity> entities = List.of(entity);
 		when(myBatisMapper.findAllUsers()).thenReturn(entities);
-		
+
 		List<User> result = userRepository.getUsers();
-		
+
 		assertNotNull(result);
 		assertEquals(1, result.size());
 		assertEquals("Javier", result.get(0).getName());
+	}
+
+	@Test
+	void shouldReturnUserByIdFromDatabase() {
+		UserJpaEntity entity = new UserJpaEntity();
+		entity.setId("1");
+		entity.setName("Javier");
+		entity.setLogin("jroca");
+		entity.setPassword("123");
+
+		when(myBatisMapper.getUserById("1")).thenReturn(entity);
+
+		User result = userRepository.getUser("1");
+
+		assertNotNull(result);
+		assertEquals("Javier", result.getName());
+	}
+
+	@Test
+	void shouldReturnNullWhenUserNotFoundInDatabase() {
+		when(myBatisMapper.getUserById("2")).thenReturn(null);
+
+		User result = userRepository.getUser("2");
+
+		org.junit.jupiter.api.Assertions.assertNull(result);
 	}
 }

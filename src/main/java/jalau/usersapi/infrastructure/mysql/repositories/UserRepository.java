@@ -34,7 +34,8 @@ public class UserRepository implements IUserRepository {
 	
 	@Override
 	public User getUser(String id) {
-		throw new NotImplementedException("getUser() is not implemented yet");
+		UserJpaEntity entity = myBatisMapper.getUserById(id);
+		return entity != null ? mapper.toDomainEntity(entity) : null;
 	}
 	
 	@Override

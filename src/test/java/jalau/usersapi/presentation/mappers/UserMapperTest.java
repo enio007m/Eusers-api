@@ -26,4 +26,9 @@ class UserMapperTest {
 		
 		assertEquals(user.getName(), dto.getName());
 	}
+
+	@Test
+	void shouldReturnNullWhenDomainIsNull() {
+		org.junit.jupiter.api.Assertions.assertNull(mapper.toResponseDtoEntity(null));
+	}
 }

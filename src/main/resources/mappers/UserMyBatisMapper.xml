@@ -17,4 +17,10 @@
     FROM users
   </select>
 
+  <select id="getUserById" resultType="jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity">
+    SELECT id, name, login, password
+    FROM users
+    WHERE id = #{id}
+  </select>
+
 </mapper>

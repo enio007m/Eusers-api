@@ -6,7 +6,6 @@ import java.util.concurrent.CompletableFuture;
 import jalau.usersapi.core.domain.entities.User;
 import jalau.usersapi.core.domain.repositories.IUserRepository;
 import jalau.usersapi.core.domain.services.IUserQueryService;
-import jalau.usersapi.core.exception.NotImplementedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,15 +35,16 @@ public class UserQueryService implements IUserQueryService {
         });
     }
     
-    /**
-     * TODO: Retrieves a single user by ID.
-     *
-     * @param id the user ID
-     * @return the user
-     * @throws NotImplementedException because this method is not implemented yet
-     */
     @Override
-    public User getUser(String id) {
-        throw new NotImplementedException("getUser() is not implemented");
+    public CompletableFuture<User> getUser(String id) {
+        return CompletableFuture.supplyAsync(() -> {
+            log.info("Reading user");
+            User user = userRepository.getUser(id);
+            if (user == null) {
+                log.error("User not found with ID: {}", id);
+                throw new jalau.usersapi.core.exception.UserNotFoundException("User not found with ID: " + id);
+            }
+            return user;
+        });
     }
 }
