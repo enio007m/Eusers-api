@@ -35,6 +35,12 @@ public class UserQueryService implements IUserQueryService {
         });
     }
     
+    /**
+     * Retrieves a single user by ID.
+     *
+     * @param id the user ID
+     * @return the user
+     */
     @Override
     public CompletableFuture<User> getUser(String id) {
         return CompletableFuture.supplyAsync(() -> {

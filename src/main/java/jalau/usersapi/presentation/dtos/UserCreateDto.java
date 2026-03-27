@@ -1,14 +1,34 @@
 package jalau.usersapi.presentation.dtos;
 
-public class UserCreateDto {
-    private String name;
-    private String login;
-    private String password;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getLogin() { return login; }
-    public void setLogin(String login) { this.login = login; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+/**
+ * Data Transfer Object used to receive user creation requests.
+ * <p>
+ * Contains validation rules to ensure required fields are provided.
+ */
+@Data
+public class UserCreateDto {
+    
+    /**
+     * The user's full name.
+     * Must not be blank.
+     */
+    @NotBlank(message = "Name cannot be empty")
+    private String name;
+    
+    /**
+     * The user's login identifier.
+     * Must not be blank.
+     */
+    @NotBlank(message = "Login cannot be empty")
+    private String login;
+    
+    /**
+     * The user's password.
+     * Must not be blank.
+     */
+    @NotBlank(message = "Password cannot be empty")
+    private String password;
 }

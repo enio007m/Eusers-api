@@ -2,7 +2,6 @@ package jalau.usersapi.infrastructure.mysql.repositories;
 
 import jalau.usersapi.core.domain.entities.User;
 import jalau.usersapi.core.domain.repositories.IUserRepository;
-import jalau.usersapi.core.exception.NotImplementedException;
 import jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity;
 import jalau.usersapi.infrastructure.mysql.mappers.UserPersistenceMapper;
 import jalau.usersapi.infrastructure.mysql.mybatis.UserMyBatisMapper;
@@ -38,18 +37,32 @@ public class UserRepository implements IUserRepository {
 		return entity != null ? mapper.toDomainEntity(entity) : null;
 	}
 	
+	/**
+	 * Creates a new user in the database.
+	 * <p>
+	 * The domain entity is converted to a persistence entity before being
+	 * inserted into the database. The same entity is then mapped back
+	 * to the domain model.
+	 *
+	 * @param user the user to be created
+	 * @return the created user
+	 */
 	@Override
 	public User createUser(User user) {
-		throw new NotImplementedException("createUser() is not implemented yet");
+		UserJpaEntity entity = mapper.toJpaEntity(user);
+		myBatisMapper.createUser(entity);
+		return mapper.toDomainEntity(entity);
 	}
 	
 	@Override
 	public User updateUser(User user) {
-		throw new NotImplementedException("updateUser() is not implemented yet");
+		UserJpaEntity entity = mapper.toJpaEntity(user);
+		myBatisMapper.updateUser(entity);
+		return mapper.toDomainEntity(entity);
 	}
 	
 	@Override
 	public void deleteUser(String id) {
-		throw new NotImplementedException("deleteUser() is not implemented yet");
+		myBatisMapper.deleteUserById(id);
 	}
 }

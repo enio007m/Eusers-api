@@ -5,6 +5,7 @@ import jalau.usersapi.presentation.dtos.UserResponseDto;
 import jalau.usersapi.presentation.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
  * REST controller for user queries.
  * Provides endpoints for retrieving user data.
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor

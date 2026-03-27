@@ -4,11 +4,31 @@ import jalau.usersapi.core.domain.entities.User;
 import jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 /**
  * Mapper class to convert database UserJpaEntity objects to domain User entities.
  */
 @Component
 public class UserPersistenceMapper {
+	
+	/**
+	 * Maps a domain User entity to a database UserJpaEntity.
+	 *
+	 * @param user the domain entity
+	 * @return the database entity, or null if input is null
+	 */
+	public UserJpaEntity toJpaEntity(User user) {
+		if (user == null) return null;
+		
+		UserJpaEntity entity = new UserJpaEntity();
+		entity.setId(UUID.randomUUID().toString());
+		entity.setName(user.getName());
+		entity.setLogin(user.getLogin());
+		entity.setPassword(user.getPassword());
+		
+		return entity;
+	}
 	
 	/**
 	 * Maps a UserJpaEntity to a domain User entity.

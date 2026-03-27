@@ -1,14 +1,25 @@
 package jalau.usersapi.presentation.dtos;
 
-public class UserResponseDto {
-    private String id;
-    private String name;
-    private String login;
+import lombok.Data;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getLogin() { return login; }
-    public void setLogin(String login) { this.login = login; }
+/**
+ * Data Transfer Object used to return user information in API responses.
+ */
+@Data
+public class UserResponseDto {
+    
+    /**
+     * Unique identifier of the user.
+     */
+    private String id;
+    
+    /**
+     * The user's full name.
+     */
+    private String name;
+    
+    /**
+     * The user's login identifier.
+     */
+    private String login;
 }

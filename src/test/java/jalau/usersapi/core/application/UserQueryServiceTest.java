@@ -2,6 +2,7 @@ package jalau.usersapi.core.application;
 
 import jalau.usersapi.core.domain.entities.User;
 import jalau.usersapi.core.domain.repositories.IUserRepository;
+import jalau.usersapi.core.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,12 +11,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for UserQueryService.
+ * Unit tests for {@link UserQueryService}.
+ * <p>
  * Verifies service behavior using a mocked IUserRepository.
  */
 @ExtendWith(MockitoExtension.class)
@@ -56,10 +59,10 @@ class UserQueryServiceTest {
 		
 		CompletableFuture<User> result = userQueryService.getUser("2");
 		
-		java.util.concurrent.CompletionException exception = org.junit.jupiter.api.Assertions.assertThrows(
-				java.util.concurrent.CompletionException.class,
+		CompletionException exception = assertThrows(
+				CompletionException.class,
 				result::join
 		);
-		org.junit.jupiter.api.Assertions.assertTrue(exception.getCause() instanceof jalau.usersapi.core.exception.UserNotFoundException);
+		assertInstanceOf(UserNotFoundException.class, exception.getCause());
 	}
 }

@@ -1,0 +1,36 @@
+image: maven:3.9.9-eclipse-temurin-21
+
+stages:
+  - verify
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository/
+
+# 1. Pipeline para Commits e Pushes na Branch (Checkstyle + Testes)
+verify_feature_branch:
+  stage: verify
+  script:
+    - mvn clean checkstyle:check test -Dtest=!UsersApiApplicationTests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
+
+# 2. Pipeline para Merge Request (Checkstyle + Testes + Cobertura JaCoCo)
+verify_merge_request:
+  stage: verify
+  script:
+    - mvn clean checkstyle:check test jacoco:report jacoco:check -Dtest=!UsersApiApplicationTests
+  artifacts:
+    when: always
+    paths:
+      - target/site/jacoco/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: target/site/jacoco/jacoco.xml
+  coverage: '/Total.*?([0-9]{1,3})%/'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

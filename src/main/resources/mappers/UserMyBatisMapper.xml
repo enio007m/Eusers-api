@@ -17,10 +17,32 @@
     FROM users
   </select>
 
+  <!-- Create a user in database. -->
+  <insert id="createUser" parameterType="jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity">
+    INSERT INTO users (id, name, login, password)
+    VALUES (#{id}, #{name}, #{login}, #{password})
+  </insert>
+
+  <!-- Retrieves a user by id from the database. -->
   <select id="getUserById" resultType="jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity">
     SELECT id, name, login, password
     FROM users
     WHERE id = #{id}
   </select>
+
+  <!-- Delete a user by id from the database. -->
+  <delete id="deleteUserById">
+    DELETE
+    FROM users
+    WHERE id = #{id}
+  </delete>
+
+  <update id="updateUser" parameterType="jalau.usersapi.infrastructure.mysql.entities.UserJpaEntity">
+    UPDATE users
+    SET name = #{name},
+        login = #{login},
+        password = #{password}
+    WHERE id = #{id}
+  </update>
 
 </mapper>

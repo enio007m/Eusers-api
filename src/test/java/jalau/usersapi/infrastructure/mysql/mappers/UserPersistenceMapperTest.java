@@ -10,8 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit tests for UserPersistenceMapper.
- * Verifies mapping from UserJpaEntity to User domain entity.
+ * Unit tests for {@link UserPersistenceMapper}.
+ * <p>
+ * Ensures correct conversion between domain and persistence entities.
  */
 @ExtendWith(MockitoExtension.class)
 public class UserPersistenceMapperTest {
@@ -30,5 +31,19 @@ public class UserPersistenceMapperTest {
 		
 		User user = mapper.toDomainEntity(entity);
 		assertEquals("Javier", user.getName());
+	}
+	
+	/**
+	 * Should correctly map domain entity to JPA entity.
+	 */
+	@Test
+	void shouldMapDomainToJpa() {
+		User user = new User();
+		user.setName("Javier");
+		user.setLogin("jroca");
+		
+		UserJpaEntity entity = mapper.toJpaEntity(user);
+		assertEquals("Javier", entity.getName());
+		assertEquals("jroca", entity.getLogin());
 	}
 }

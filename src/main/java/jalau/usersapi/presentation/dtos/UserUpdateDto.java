@@ -1,14 +1,19 @@
 package jalau.usersapi.presentation.dtos;
 
-public class UserUpdateDto {
-    private String name;
-    private String login;
-    private String password;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getLogin() { return login; }
-    public void setLogin(String login) { this.login = login; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+@Data
+public class UserUpdateDto {
+    
+    @NotBlank(message = "Name is required")
+    private String name;
+    
+    @NotBlank(message = "Login is required")
+    private String login;
+    
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    private String password;
 }

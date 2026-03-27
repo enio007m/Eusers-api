@@ -1,6 +1,7 @@
 package jalau.usersapi.presentation.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller responsible for health check operations.
  * Used to verify if the API is up and running.
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/health")
 public class HealthQueryController {
