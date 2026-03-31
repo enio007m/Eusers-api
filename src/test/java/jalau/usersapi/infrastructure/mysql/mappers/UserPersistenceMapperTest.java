@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 /**
  * Unit tests for {@link UserPersistenceMapper}.
  * <p>
@@ -45,5 +47,15 @@ public class UserPersistenceMapperTest {
 		UserJpaEntity entity = mapper.toJpaEntity(user);
 		assertEquals("Javier", entity.getName());
 		assertEquals("jroca", entity.getLogin());
+	}
+
+	@Test
+	void shouldReturnNullWhenMappingJpaToDomainWithNull() {
+		assertNull(mapper.toDomainEntity(null));
+	}
+
+	@Test
+	void shouldReturnNullWhenMappingDomainToJpaWithNull() {
+		assertNull(mapper.toJpaEntity(null));
 	}
 }

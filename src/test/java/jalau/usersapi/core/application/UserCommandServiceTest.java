@@ -2,6 +2,7 @@ package jalau.usersapi.core.application;
 
 import jalau.usersapi.core.domain.entities.User;
 import jalau.usersapi.core.domain.repositories.IUserRepository;
+import jalau.usersapi.core.exception.InvalidUserDataException;
 import jalau.usersapi.core.exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +58,7 @@ class UserCommandServiceTest {
     }
     
     @Test
-    void shouldUpdateUserWhenUserExists() {
+    void shouldUpdateUserWhenUserExists() throws Exception {
         // Arrange
         String userId = "existing-id";
         User existingUserInDb = new User(userId, "Old Name", "old_login", "old_pass");
@@ -71,7 +73,8 @@ class UserCommandServiceTest {
         when(userRepository.updateUser(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // Act
-        User result = userCommandService.updateUser(inputUser);
+        CompletableFuture<User> resultFuture = userCommandService.updateUser(inputUser);
+        User result = resultFuture.get();
 
         // Assert
         assertEquals("New Name", result.getName());
@@ -79,22 +82,65 @@ class UserCommandServiceTest {
         assertEquals("new_pass", result.getPassword());
         verify(userRepository, times(1)).updateUser(any(User.class));
     }
-
+    
     @Test
-    void shouldReturnNullWhenUserDoesNotExist() {
-        // Arrange
+    void shouldThrowExceptionWhenUserDoesNotExist() {
         String userId = "missing-id";
         when(userRepository.getUser(userId)).thenReturn(null);
-
+        
         User inputUser = new User();
         inputUser.setId(userId);
-
-        // Act
-        User result = userCommandService.updateUser(inputUser);
-
-        // Assert
-        assertNull(result);
+        
+        CompletableFuture<User> future = userCommandService.updateUser(inputUser);
+        
+        ExecutionException ex = assertThrows(ExecutionException.class, future::get);
+		assertInstanceOf(UserNotFoundException.class, ex.getCause());
+        
         verify(userRepository, never()).updateUser(any());
+    }
+    
+    @Test
+    void shouldThrowExceptionWhenPatchIsEmpty() {
+        User user = new User();
+        user.setId("existing-id");
+        when(userRepository.getUser("existing-id")).thenReturn(new User());
+        
+        CompletableFuture<User> future = userCommandService.updateUser(user);
+        
+        ExecutionException ex = assertThrows(ExecutionException.class, future::get);
+		assertInstanceOf(InvalidUserDataException.class, ex.getCause());
+    }
+    
+    @Test
+    void shouldThrowExceptionWhenFieldIsBlank() {
+        String userId = "1";
+        User existing = new User(userId, "Name", "login", "pass");
+        when(userRepository.getUser(userId)).thenReturn(existing);
+        
+        User input = new User();
+        input.setId(userId);
+        input.setName("   ");
+        
+        CompletableFuture<User> future = userCommandService.updateUser(input);
+        
+        ExecutionException ex = assertThrows(ExecutionException.class, future::get);
+        assertInstanceOf(InvalidUserDataException.class, ex.getCause());
+    }
+    
+    @Test
+    void shouldIgnoreNullFields() throws Exception {
+        String userId = "1";
+        User existing = new User(userId, "Name", "login", "pass");
+        when(userRepository.getUser(userId)).thenReturn(existing);
+        
+        User input = new User();
+        input.setId(userId);
+        input.setName(null);
+        input.setLogin("new_login");
+        when(userRepository.updateUser(any())).thenAnswer(i -> i.getArguments()[0]);
+        
+        User result = userCommandService.updateUser(input).get();
+        assertEquals("Name", result.getName()); // not changed
     }
 
     @Test
@@ -123,7 +169,7 @@ class UserCommandServiceTest {
 
         // Assert (Verifica se a exceção de Not Found foi lançada dentro da thread)
         CompletionException exception = assertThrows(CompletionException.class, result::join);
-        assertTrue(exception.getCause() instanceof UserNotFoundException);
+		assertInstanceOf(UserNotFoundException.class, exception.getCause());
 
         // Garante que o método delete NUNCA foi chamado no banco
         verify(userRepository, never()).deleteUser(anyString());

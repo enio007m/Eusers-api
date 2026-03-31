@@ -52,18 +52,17 @@ public class UserCommandController {
     public CompletableFuture<ResponseEntity<UserResponseDto>> updateUser(
             @PathVariable String id, 
             @Valid @RequestBody UserUpdateDto request) {
-        
-        return CompletableFuture.supplyAsync(() -> {
-            User user = userMapper.toDomainEntity(id, request);
-
-            User updatedUser = userCommandService.updateUser(user);
-            if (updatedUser == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            UserResponseDto response = userMapper.toResponseDtoEntity(updatedUser);
-            return ResponseEntity.ok(response);
-        });
+		User user = userMapper.toDomainEntity(id, request);
+		
+		return userCommandService.updateUser(user)
+				   .thenApply(updatedUser -> {
+					   if (updatedUser == null) {
+						   return ResponseEntity.notFound().build();
+					   }
+					   
+					   UserResponseDto response = userMapper.toResponseDtoEntity(updatedUser);
+					   return ResponseEntity.ok(response);
+				   });
     }
 
     @DeleteMapping("/{id}")

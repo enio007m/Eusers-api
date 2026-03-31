@@ -22,7 +22,14 @@ public class UserPersistenceMapper {
 		if (user == null) return null;
 		
 		UserJpaEntity entity = new UserJpaEntity();
-		entity.setId(UUID.randomUUID().toString());
+		
+		// Generate UUID only for new users
+		if (user.getId() == null || user.getId().isEmpty()) {
+			entity.setId(UUID.randomUUID().toString());
+		} else {
+			entity.setId(user.getId());
+		}
+		
 		entity.setName(user.getName());
 		entity.setLogin(user.getLogin());
 		entity.setPassword(user.getPassword());

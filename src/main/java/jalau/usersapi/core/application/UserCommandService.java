@@ -3,6 +3,7 @@ package jalau.usersapi.core.application;
 import jalau.usersapi.core.domain.entities.User;
 import jalau.usersapi.core.domain.repositories.IUserRepository;
 import jalau.usersapi.core.domain.services.IUserCommandService;
+import jalau.usersapi.core.exception.InvalidUserDataException;
 import jalau.usersapi.core.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -37,19 +38,33 @@ public class UserCommandService implements IUserCommandService {
             return userRepository.createUser(user);
         });
     }
-
+    
     @Override
-    public User updateUser(User user) {
-        User existingUser = userRepository.getUser(user.getId());
-        if (existingUser == null) {
-            return null; // Return null if not found to decouple from HTTP Codes
-        }
-        
-        existingUser.setName(user.getName());
-        existingUser.setLogin(user.getLogin());
-        existingUser.setPassword(user.getPassword());
-
-        return userRepository.updateUser(existingUser);
+    public CompletableFuture<User> updateUser(User user) {
+        return CompletableFuture.supplyAsync(() -> {
+            User existingUser = userRepository.getUser(user.getId());
+            if (existingUser == null) {
+                log.warn("User not found");
+                throw new UserNotFoundException("User not found");
+            }
+            
+            if (user.getName() == null && user.getLogin() == null && user.getPassword() == null) {
+                log.warn("Empty PATCH request - no fields to update");
+                throw new InvalidUserDataException("At least one field must be provided for update");
+            }
+            log.info("Updating user with ID: {}", user.getId());
+            
+            String name = validateAndNormalize(user.getName(), "name");
+            if (name != null) existingUser.setName(name);
+            
+            String login = validateAndNormalize(user.getLogin(), "login");
+            if (login != null) existingUser.setLogin(login);
+            
+            String password = validateAndNormalize(user.getPassword(), "password");
+            if (password != null) existingUser.setPassword(password);
+            
+            return userRepository.updateUser(existingUser);
+		});
     }
 
     @Override
@@ -59,12 +74,23 @@ public class UserCommandService implements IUserCommandService {
 
             User existingUser = userRepository.getUser(id);
             if (existingUser == null) {
-                log.error("User not found with ID: {}", id);
+                log.warn("User not found with ID: {}", id);
                 throw new UserNotFoundException("User not found with ID: " + id);
             }
 
             userRepository.deleteUser(id);
             log.info("User successfully deleted.");
         });
+    }
+    
+    private String validateAndNormalize(String value, String fieldName) {
+        if (value == null) return null;
+        
+        String normalized = value.trim();
+        if (normalized.isEmpty()) {
+            log.warn("Invalid {}", fieldName);
+            throw new InvalidUserDataException("Invalid " + fieldName);
+        }
+        return normalized;
     }
 }

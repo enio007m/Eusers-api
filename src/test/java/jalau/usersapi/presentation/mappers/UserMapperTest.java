@@ -65,4 +65,14 @@ class UserMapperTest {
 	void shouldReturnNullWhenDomainIsNull() {
 		assertNull(mapper.toResponseDtoEntity(null));
 	}
+
+	@Test
+	void shouldReturnNullWhenMappingCreateDtoWithNull() {
+		assertNull(mapper.toDomainEntity(null));
+	}
+
+	@Test
+	void shouldReturnNullWhenMappingUpdateDtoWithNull() {
+		assertNull(mapper.toDomainEntity("1", null));
+	}
 }

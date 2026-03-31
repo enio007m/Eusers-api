@@ -26,7 +26,7 @@ public interface IUserCommandService {
      * @param user the user to be updated
      * @return the updated user
      */
-    User updateUser(User user);
+    CompletableFuture<User> updateUser(User user);
     
     /**
      * Deletes a user by its unique identifier.
