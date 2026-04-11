@@ -18,4 +18,6 @@ public interface IUserQueryService {
     CompletableFuture<List<User>> getUsers();
     
     CompletableFuture<User> getUser(String id);
+
+    CompletableFuture<User> getUserByLogin(String login);
 }

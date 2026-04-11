@@ -53,4 +53,16 @@ public class UserQueryService implements IUserQueryService {
             return user;
         });
     }
+
+    @Override
+    public CompletableFuture<User> getUserByLogin(String login) {
+        return CompletableFuture.supplyAsync(() -> {
+            log.info("Reading user by login");
+            User user = userRepository.getUserByLogin(login);
+            if (user == null) {
+                throw new jalau.usersapi.core.exception.UserNotFoundException("User not found with login: " + login);
+            }
+            return user;
+        });
+    }
 }

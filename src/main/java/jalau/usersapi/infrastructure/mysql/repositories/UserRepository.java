@@ -65,4 +65,10 @@ public class UserRepository implements IUserRepository {
 	public void deleteUser(String id) {
 		myBatisMapper.deleteUserById(id);
 	}
+
+	@Override
+	public User getUserByLogin(String login) {
+		UserJpaEntity entity = myBatisMapper.getUserByLogin(login);
+		return entity != null ? mapper.toDomainEntity(entity) : null;
+	}
 }

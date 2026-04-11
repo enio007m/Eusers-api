@@ -46,4 +46,6 @@ public interface IUserRepository {
      * @return the user
      */
     User getUser(String id);
+
+    User getUserByLogin(String login);
 }

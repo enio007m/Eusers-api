@@ -28,4 +28,6 @@ public interface UserMyBatisMapper {
 	UserJpaEntity getUserById(@Param("id") String id);
 	
 	void deleteUserById(@Param("id") String id);
+
+	UserJpaEntity getUserByLogin(@Param("login") String login);
 }

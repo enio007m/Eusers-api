@@ -2,6 +2,7 @@ package jalau.usersapi.presentation.exceptions;
 
 import jalau.usersapi.core.exception.InvalidUserDataException;
 import jalau.usersapi.core.exception.UserNotFoundException;
+import jalau.usersapi.core.exception.InvalidUserException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,12 @@ public class GlobalExceptionHandler {
         if (cause instanceof MethodArgumentNotValidException exValidation) {
             return handleValidationException(exValidation);
         }
-        
+
+        if (cause instanceof InvalidUserException) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", cause.getMessage()));
+        }
+
         cause.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                    .body(Map.of("error", "Internal server error"));
@@ -72,6 +78,13 @@ public class GlobalExceptionHandler {
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
             Map.of("error", "Internal server error")
+        );
+    }
+
+    @ExceptionHandler(InvalidUserException.class)
+    public ResponseEntity<?> handleInvalidUserException(InvalidUserException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                Map.of("error", ex.getMessage())
         );
     }
 }
