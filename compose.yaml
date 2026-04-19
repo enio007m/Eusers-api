@@ -7,17 +7,20 @@ services:
     ports:
       - "8001:8001" # host:container port mapping
     depends_on:
-      - mysql # ensures database starts before the API
+      mysql-db: # ensures database starts before the API
+        condition: service_healthy
     environment:
-      # environment variables used by Spring Boot to connect to the database
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sd3db
+      # environment variables used by Spring Boot to connect to the shared database
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/sd3db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - cis-network
 
-  # Database service
-  mysql:
+  # Shared Database service
+  mysql-db:
     image: mysql:8.0 # official MySQL image
-    container_name: users-mysql
+    container_name: mysql-db
     restart: always # automatically restarts if the container stops
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -26,3 +29,16 @@ services:
       - "3306:3306" # default MySQL port
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cis-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+# Shared external Docker network
+# Must be created manually before running containers:
+# docker network create cis-network
+networks:
+  cis-network:
+    external: true
