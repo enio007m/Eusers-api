@@ -1,137 +1,134 @@
 # Users API (Java + Spring Boot)
 
-## 📌 Descrição
+## 📌 Description
 
-Este projeto fornece uma **API de usuários** utilizando **Java com Spring Boot**, organizada segundo **boas práticas de arquitetura em camadas**.
+This project provides a **Users API** built with **Java and Spring Boot**, following **Clean Architecture** principles and best practices.
 
-O objetivo é disponibilizar uma base padronizada para desenvolvimento contínuo, facilitando futuras implementações de funcionalidades e integrações.
+It manages core features such as **user registration, authentication (JWT), and profile management**, serving as the foundational identity service for the CIS (Crowdsourced Ideation Solution) ecosystem.
+
+The goal is to maintain a standardized, scalable architecture, ensuring separation of concerns and seamless integration with multiple persistence layers (MySQL and MongoDB).
 
 ---
 
-## 🚀 Tecnologias
+## 🚀 Technologies
 
 - Java 21
-- Spring Boot
+- Spring Boot 3
 - Maven
-- MySQL
+- MySQL 8 (Relational Database)
+- MongoDB (NoSQL Database)
+- JWT (JSON Web Tokens)
 - Docker & Docker Compose
 
 ---
 
-## 📁 Estrutura do Projeto
+## 🧱 Architecture Overview
 
-O projeto segue uma arquitetura em camadas:
+The project follows a strict layered architecture, enabling the implementation of multiple database infrastructures without affecting domain rules:
 
-```text
-src/main/java/jalau/usersapi
-├── core
-│   ├── application        # Serviços de aplicação (casos de uso)
-│   └── domain
-│       ├── entities       # Entidades de domínio
-│       ├── repositories   # Interfaces de repositório
-│       └── services       # Interfaces de serviço
-├── infrastructure
-│   └── mysql              # Implementação de persistência (MySQL)
-└── presentation
-    ├── controllers        # Controllers REST
-    └── dtos               # Objetos de transferência de dados (DTOs)
-```
+    src/main/java/jalau/usersapi
+    ├── core
+    │   ├── application        # Application services (Use cases & Orchestration)
+    │   ├── domain             # Domain entities and Repository/Service Interfaces
+    │   └── exception          # Core domain exceptions
+    ├── infrastructure
+    │   ├── mongodb            # MongoDB Data Persistence Implementation
+    │   ├── mysql              # MySQL Data Persistence Implementation
+    │   └── security           # JWT Token Provider implementation
+    └── presentation
+        ├── controllers        # REST API Controllers
+        ├── dtos               # Data Transfer Objects (Request/Response)
+        ├── exceptions         # Global Exception Handler (Middleware)
+        └── mappers            # Object mapping logic
 
 ---
 
-## ⚙️ Configuração
+## 🗄️ Database Strategy & Toggling (MySQL vs MongoDB)
 
-Arquivo: `application.properties`
+A key architectural feature of this API is its ability to switch between a Relational Database (MySQL) and a Document Database (MongoDB) seamlessly, utilizing **Spring Profiles** and **Dependency Injection**.
 
-```properties
-server.port=8001
-spring.datasource.url=jdbc:mysql://mysql:3306/sd3db
-spring.datasource.username=root
-spring.datasource.password=root
-```
+Both databases run simultaneously within the `cis-network` via Docker.
 
-### 🐳 Docker
+### How to switch databases:
 
-O projeto utiliza **Docker** para facilitar o setup:
+You can switch the active database at any time without changing any business logic.
+Simply open `src/main/resources/application.properties` and change the `spring.profiles.active` property:
 
-- **Build stage:** compila o projeto com Maven
-- **Run stage:** executa o `.jar` com Java
+### Here you decide which database to run on: Input --- mysql --- or --- mongodb ---
+**To use MongoDB:**
+spring.profiles.active=mongodb
 
-Primeira execução (build da imagem):
+**To use MySQL:**
+spring.profiles.active=mysql
 
-```bash
+*Note: After changing the profile, restart the Docker container (`docker compose up --build`) for the changes to take effect.*
+
+---
+
+## 🐳 Docker & Environment Setup
+
+The project uses **Docker** to facilitate the setup of the API and both databases.
+
+### 🌐 Shared Docker Network
+This API shares a Docker network with the CIS API to allow secure internal communication.
+Ensure the network exists before running the containers:
+
+    docker network create cis-network
+
+### 🚀 Running the Project
+
+First execution (builds the image):
 docker compose up --build
-```
 
-Execuções seguintes:
-
-```bash
+Standard execution:
 docker compose up
-```
 
-A aplicação ficará disponível em: [http://localhost:8001](http://localhost:8001/)
+To stop containers:
+docker compose down
 
----
-
-## 🌐 Endpoints
-
-O projeto inclui endpoint de **health check** disponível:
-
-- `GET /api/v1/health` — verifica se a aplicação está rodando corretamente (retorna `200 OK`)
-
-> Novos endpoints CRUD serão adicionados progressivamente conforme as user stories forem implementadas.
-
-### 🧪 Testando a API
-
-Como esta é uma API REST, os endpoints não possuem interface visual no navegador.
-
-Você pode testar utilizando:
-
-#### 🔹 cURL (terminal)
-
-```bash
-curl http://localhost:8001/api/v1/health
-```
-
-Resposta esperada: HTTP/1.1 200
-
-#### 🔹 Postman
-1. Baixe o Postman: https://www.postman.com/downloads/
-2. Crie uma requisição `GET`
-3. Use a URL: 
-    ```text
-    http://localhost:8001/api/v1/health
-    ```
-4. Clique em **Send**
-> A resposta esperada é 200 OK.
+The application will be available at: `http://localhost:8001`
 
 ---
 
-## 🗄️ Banco de Dados
+## 🌐 API Endpoints
 
-- Banco: MySQL 8
-- Database: `sd3db`
-- Porta: `3306`
-- Host (Docker): `mysql`
-- Usuário: `root`
-- Senha: `root`
+### Health
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| GET | `http://localhost:8001/api/v1/health` | API Health check | Implemented |
 
-O banco é criado automaticamente ao subir os containers via Docker Compose.
+### Authentication
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| POST | `http://localhost:8001/api/v1/auth/login` | Authenticate user and generate JWT token | Implemented |
+
+### Users Management
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| POST | `http://localhost:8001/api/v1/users` | Create a new user | Implemented |
+| GET | `http://localhost:8001/api/v1/users` | List all users | Implemented |
+| GET | `http://localhost:8001/api/v1/users/{id}` | Get user by ID | Implemented |
+| PATCH | `http://localhost:8001/api/v1/users/{id}` | Update user (Partial update: name, password) | Implemented |
+| DELETE | `http://localhost:8001/api/v1/users/{id}` | Delete a user | Implemented |
 
 ---
 
-## 📌 Status Geral
+## 🧪 Testing the API
 
-- Estrutura do projeto definida
-- Arquitetura em camadas aplicada
-- Setup com Docker configurado
-- Endpoints de teste disponíveis
+### Authentication Workflow (Postman)
+1. Send a `POST` request to `/api/v1/auth/login` with your credentials (`login` and `password`).
+2. Copy the generated `token` from the response.
+3. For protected routes (like CIS API endpoints), add the token to the **Headers**:
+   - **Key:** `Authorization`
+   - **Value:** `Bearer <your_token>`
 
 ---
 
-## 🔜 Próximos Passos
+## 📌 Current Project Status
 
-- Implementação dos endpoints CRUD
-- Integração com JPA/Hibernate
-- Adição de regras de negócio e validações
-- Testes unitários e de integração
+- [x] Clean Architecture implemented
+- [x] Docker & `cis-network` integration
+- [x] Global Exception Handler implemented
+- [x] JWT Authentication & Security
+- [x] CRUD operations fully functional
+- [x] MongoDB Infrastructure integrated alongside MySQL

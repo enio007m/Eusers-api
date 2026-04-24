@@ -7,6 +7,7 @@ import jalau.usersapi.infrastructure.mysql.mappers.UserPersistenceMapper;
 import jalau.usersapi.infrastructure.mysql.mybatis.UserMyBatisMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * Repository implementation for accessing users in the MySQL database.
  */
 @Repository
+@Profile("mysql")
 @RequiredArgsConstructor
 public class UserRepository implements IUserRepository {
 	
